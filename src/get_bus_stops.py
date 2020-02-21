@@ -24,6 +24,7 @@ def get_bus_dir(busno: int)->dict:
     else:
         raise ValueError(f'Failed to obtain response in {__name__}')
 
+# TODO: See the next todo, needs to change the schema info
 @sqlite3_connector
 def dump_stop_info(dbconn, stoplist: list):
     cursor = dbconn.cursor()
@@ -53,6 +54,9 @@ def get_bus_stops(busno: int):
         dir.append('North')
         dir.append('South')
 
+    # TODO: We need to modify the schema of stm_stops_staging
+    # TODO: Add one column for direction (East/West/North/South)
+    # TODO: And definitely change the code below
     for d in dir:
         with rq.get(
             f'https://m.stm.info/en/schedules/bus/{busno}/stops?direction={d}',
