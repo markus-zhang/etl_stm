@@ -2,6 +2,7 @@ import requests as rq
 from lxml import html
 from response import get_response_status
 from datetime import datetime as dt
+from stm_sqlite3 import sqlite3_connector
 
 def get_bus_dir(busno: int)->dict:
     """
@@ -22,6 +23,13 @@ def get_bus_dir(busno: int)->dict:
         return rp
     else:
         raise ValueError(f'Failed to obtain response in {__name__}')
+
+@sqlite3_connector
+def dump_stop_info(dbconn, stoplist: list):
+    cursor = dbconn.cursor()
+    for s in stoplist:
+        cursor.execute('INSERT INTO stm_stops_staging' + ' (bus_no, stop_seq, stop_content, query_timestamp) VALUES (?,?,?,?);', s)
+
 
 def get_bus_stops(busno: int):
     """
@@ -85,8 +93,9 @@ def get_bus_stops(busno: int):
                 # print(stop.text_content())
                 stop_list.append(stop_tuple)
 
-            for s in stop_list:
-                print(s)
+            dump_stop_info(stop_list)
+                
 
 if __name__ == "__main__":
+    rq.packages.urllib3.disable_warnings() 
     get_bus_stops(51)
