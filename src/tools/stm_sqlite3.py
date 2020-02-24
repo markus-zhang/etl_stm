@@ -17,7 +17,7 @@ def sqlite3_connector(conn_str):
                 dec_func = func(conn, *args, **kwargs)
             except Exception:
                 conn.rollback()
-                logging.error("Cannot connect to SQLite3 DB: " + conn_str)
+                logging.error('SQL Query Error')
                 raise
             else:
                 conn.commit()
