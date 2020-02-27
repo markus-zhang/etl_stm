@@ -1,8 +1,9 @@
 import requests as rq
+import os
 from lxml import html
 from response import get_response_status
 from datetime import datetime as dt
-from stm_sqlite3 import sqlite3_connector
+from tools.stm_sqlite3 import sqlite3_connector
 
 def get_bus_dir(busno: int)->dict:
     """
@@ -25,11 +26,11 @@ def get_bus_dir(busno: int)->dict:
         raise ValueError(f'Failed to obtain response in {__name__}')
 
 # TODO: See the next todo, needs to change the schema info
-@sqlite3_connector
+@sqlite3_connector(f'{os.path.join(os.path.dirname(__file__), "stm")}')
 def dump_stop_info(dbconn, stoplist: list):
     cursor = dbconn.cursor()
     for s in stoplist:
-        cursor.execute('INSERT INTO stm_stops_staging' + ' (bus_no, stop_seq, stop_content, query_timestamp) VALUES (?,?,?,?);', s)
+        cursor.execute('INSERT INTO stm_stops_staging' + ' (bus_no, stop_seq, stop_content, query_timestamp, direction) VALUES (?,?,?,?,?);', s)
 
 
 def get_bus_stops(busno: int):
@@ -85,7 +86,7 @@ def get_bus_stops(busno: int):
             # Generate tuple for first stop
             stop_seq = 1
             # print(firststopname[0].text_content())
-            stop_tuple = (busno, stop_seq, firststopname[0].text_content().strip(), queryepoch)
+            stop_tuple = (busno, stop_seq, firststopname[0].text_content().strip(), queryepoch, d)
             stop_list.append(stop_tuple)
             # print(stop_tuple)
             # print(firststopname[0].text.strip())    # This only shows the text inside of this span and will exclude the children
@@ -93,7 +94,7 @@ def get_bus_stops(busno: int):
             # print(firststop[0].attrib['href'])      # Use attrib property to grab the attributes (e.g. href) INSIDE of <span ...>
             for stop in reststops:
                 stop_seq += 1
-                stop_tuple = (busno, stop_seq, stop.text_content().strip(), queryepoch)
+                stop_tuple = (busno, stop_seq, stop.text_content().strip(), queryepoch, d)
                 # print(stop.text_content())
                 stop_list.append(stop_tuple)
 
@@ -102,4 +103,4 @@ def get_bus_stops(busno: int):
 
 if __name__ == "__main__":
     rq.packages.urllib3.disable_warnings() 
-    get_bus_stops(51)
+    get_bus_stops(78)
