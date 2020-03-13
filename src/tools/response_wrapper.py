@@ -7,7 +7,7 @@ import requests as rq
 from urllib3.exceptions import InsecureRequestWarning
 
 # TODO: Add support for logging
-def get_response(url: str, verifyssl: bool= False, log: str='')-> tuple:
+def get_response(url: str, verifyssl: bool= False, hd: dict={}, payload: dict={}, log: str='')-> tuple:
     """
         Functionality: 
             Returns (status, text) for a request;
@@ -25,7 +25,7 @@ def get_response(url: str, verifyssl: bool= False, log: str='')-> tuple:
 
     with rq.Session() as s:
         try:
-            r= s.get(url, verify=verifyssl)
+            r= s.get(url, verify=verifyssl, headers=hd, params=payload)
             # if len(r.text) <= 0:
             # raise ValueError(f'{__name__} error: Response text has length 0')
 
